@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+ name: build-app-run
+spec:
+ params:
+   - name: quay-credentials-secret
+     value: quay-credentials
+   - name: container-image
+     value: quay.io/rhdevelopers/pacman-kikd:1.0.1
+ resources:
+   inputs:
+     - name: source
+       resourceRef:
+         name: git-source
+ taskRef:
+   name: build-app

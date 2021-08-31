@@ -10,7 +10,7 @@ spec:
   project: default 
   source: 
     path: src/main/kubernetes/openshift
-    repoURL: https://github.com/redhat-developer-demos/pacman-kikd
+    repoURL: https://github.com/lordofthejars/pacman-kikd
     targetRevision: main
   syncPolicy: 
     automated:

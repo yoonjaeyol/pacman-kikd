@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+ name: build-app
+spec:
+ params:
+ - name: quay-credentials-secret
+   type: string
+   description: name of the secret holding the quay credentials
+   default: quay-credentials
+ - name: container-image
+   type: string
+   description: container name to build and push
+ resources:
+   inputs:
+     - name: source
+       type: git
+ steps:
+   - name: maven-build
+     image: docker.io/maven:3.6-jdk-11-slim
+     command:
+       - mvn
+     args:
+       - clean
+       - package
+       - -Dquarkus.container-image.push=true
+     env:
+     - name: QUARKUS_CONTAINER_IMAGE_IMAGE
+       value: $(outputs.resources.builtImage.url)
+     - name: QUARKUS_CONTAINER_IMAGE_USERNAME
+       valueFrom:
+         secretKeyRef:
+           name: $(params.quay-credentials-secret)
+           key: quay-username
+     - name: QUARKUS_CONTAINER_IMAGE_PASSWORD
+       valueFrom:
+         secretKeyRef:
+           name: $(params.quay-credentials-secret)
+           key: quay-password
+     workingDir: "/workspace/source/"
