@@ -6,5 +6,5 @@ resources:
 - ./pacman-service.yaml
 - ./pacman-route.yaml
 images:
-- name: quay.io/rhdevelopers/pacman-kikd
+- name: lordofthejars/pacman-kikd
   newTag: 1.0.0
