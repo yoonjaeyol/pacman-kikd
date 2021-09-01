@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
- name: build-app
+ name: build-app-pacman
 spec:
  params:
- - name: quay-credentials-secret
+ - name: dockerio-credentials-secret
    type: string
    description: name of the secret holding the quay credentials
-   default: quay-credentials
+   default: dockerio-credentials
  - name: container-image
    type: string
    description: container name to build and push
@@ -26,15 +26,35 @@ spec:
        - -Dquarkus.container-image.push=true
      env:
      - name: QUARKUS_CONTAINER_IMAGE_IMAGE
-       value: $(outputs.resources.builtImage.url)
+       value: $(params.container-image)
      - name: QUARKUS_CONTAINER_IMAGE_USERNAME
        valueFrom:
          secretKeyRef:
-           name: $(params.quay-credentials-secret)
-           key: quay-username
+           name: $(params.dockerio-credentials-secret)
+           key: dockerio-username
      - name: QUARKUS_CONTAINER_IMAGE_PASSWORD
        valueFrom:
          secretKeyRef:
-           name: $(params.quay-credentials-secret)
-           key: quay-password
+           name: $(params.dockerio-credentials-secret)
+           key: dockerio-password
      workingDir: "/workspace/source/"
+   - name: update-deployment-file
+     image: lordofthejars/kustomize-updater:1.0.0
+     script: |
+        #!/usr/bin/env ash
+
+        cd /workspace/source
+
+        git checkout -b newver
+
+        git config --global user.email "alex@example.com"
+        git config --global user.name "Alex"
+
+        (cd src/main/kubernetes/openshift && /app/kustomize edit set image $DESTINATION_IMAGE)
+
+        git add .
+        git commit -m "Update to $DESTINATION_IMAGE"
+        git push origin newver:main
+     env:
+      - name: DESTINATION_IMAGE
+        value: "$(params.container-image)"

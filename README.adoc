@@ -1,0 +1,82 @@
+= Pacman with CI & CD
+
+== Requirements
+
+DockerHub account: https://www.docker.com/
+GitHub account: https://github.com/
+
+A GitHub personal access token to push content from the CI pipeline.
+
+Check this doc to learn how to create one: https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
+
+A Kubernetes cluster with Tekton and ArgoCD installed.
+
+== Set Up
+
+Fork the following repo https://github.com/lordofthejars/pacman-kikd to your GH account.
+
+== Modification of YAML files
+
+In order to run the example, you need to configure GitHub and DockerHub parameters.
+
+=== Secrets
+
+Update `src/main/tekton/dockerhub-secret.yaml` with your DockerHub username and password.
+
+Update `src/main/tekton/github-secret.yaml` with your GitHub username and personal token.
+
+=== Tekton resources
+
+Update `src/main/tekton/app-resources.yaml` setting the `value` field to the forked repo (your account).
+
+Update `src/main/tekton/build-app-task-run.yaml` changing `lordofthejars` to your docker account username.
+
+=== ArgoCD
+
+Update `src/main/argocd/openshift/pacman-application.yaml`, setting `repoURL` field pointing out to the forked repo.
+
+== Deploy the first version
+
+`kubectl apply -f src/main/argocd/openshift/pacman-application.yaml`
+
+After that, Pacman is up and running because ArgoCD has deployed the first version.
+
+== Tekton
+
+Create a namespace to run pipeline:
+
+`kubectl create namespace pacman-build`
+
+`kubens pacman-build`
+
+Create Kubernetes secrets:
+
+`kubectl apply -f src/main/tekton/dockerhub-secret.yaml`
+
+`kubectl apply -f src/main/tekton/github-secret.yaml`
+
+Create a service account to run pipeline:
+
+`kubectl apply -f src/main/tekton/service-account.yaml`
+
+Create the tekton resource:
+
+`kubectl apply -f src/main/tekton/app-resource.yaml`
+
+Create the Tekton task that implements the CI part:
+
+`kubectl apply -f src/main/tekton/build-app-task.yaml`
+
+== Webhook
+
+Before running the pipeline, create a webhook in GitHub repo, so when a a change occurs, this change is notified to ArgoCD and runs automatically the deploy of the new version of the application.
+
+image::webhook.png[]
+
+Payload URL must be `<ArgoUI URL>/api/webhook`.
+
+== Make a change
+
+With everything in place, modify the code, commit to GH repo and then trigger the Tekton Task Run:
+
+`kubectl -f src/main/tekton/build-app-task.yaml`

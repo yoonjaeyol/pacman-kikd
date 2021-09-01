@@ -7,4 +7,4 @@ spec:
  type: git
  params:
    - name: url
-     value: https://github.com/redhat-developer-demos/pacman-kikd.git
+     value: https://github.com/lordofthejars/pacman-kikd.git

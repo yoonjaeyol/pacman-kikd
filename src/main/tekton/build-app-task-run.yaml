@@ -1,17 +1,18 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
- name: build-app-run
+ name: build-app-run-pacman
 spec:
+ serviceAccountName: build-bot
  params:
-   - name: quay-credentials-secret
-     value: quay-credentials
+   - name: dockerio-credentials-secret
+     value: dockerio-credentials
    - name: container-image
-     value: quay.io/rhdevelopers/pacman-kikd:1.0.1
+     value: lordofthejars/pacman-kikd:1.0.1
  resources:
    inputs:
      - name: source
        resourceRef:
          name: git-source
  taskRef:
-   name: build-app
+   name: build-app-pacman
