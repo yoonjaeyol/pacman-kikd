@@ -7,4 +7,4 @@ resources:
 - ./pacman-route.yaml
 images:
 - name: lordofthejars/pacman-kikd
-  newTag: 1.0.0
+  newTag: 1.0.1
