@@ -1,9 +1,8 @@
 FROM registry.access.redhat.com/ubi8/openjdk-11
 
 RUN ls -al /
-RUN pwd && ls
-RUN cd /home/jboss
 RUN ls -al
+RUN ls -al /home/jboss
 RUN cd /workspace/source/target/
 RUN ls -al
 
